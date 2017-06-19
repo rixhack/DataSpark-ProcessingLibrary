@@ -26,7 +26,9 @@ public class TwitterRequest extends ReceiverAdapter {
 	// Initialise a request with given query and time window.
 	public TwitterRequest(PApplet parent, String query, int min) {
 		this.parent = parent;
-		parent.registerMethod("dispose", this);
+		if (parent != null)	{
+			parent.registerMethod("dispose", this);
+		}
 		this.query = query;
 		this.timeWindow = min;
 		try {
