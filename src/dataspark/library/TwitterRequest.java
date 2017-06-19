@@ -6,6 +6,13 @@ import org.jgroups.ReceiverAdapter;
 
 import processing.core.PApplet;
 
+/*
+ * Class which emulates the behaviour of the TwitterRequest class from the backend 
+ * processing library allowing the designer of a processing sketch to test different 
+ * data values with a slider tool.
+ * 
+ */
+
 public class TwitterRequest extends ReceiverAdapter {
 	
 	PApplet parent; // The processing sketch which calls this class.
@@ -35,7 +42,7 @@ public class TwitterRequest extends ReceiverAdapter {
 		channel.setReceiver(this);
 		channel.connect("TwitterDataCluster");
 		channel.setDiscardOwnMessages(true);
-		Object[] array = {query, timeWindow};
+		Object[] array = {"twitter", query, new Integer(timeWindow).toString()};
 		Message req = new Message(null, array);
 		channel.send(req);
 	}
