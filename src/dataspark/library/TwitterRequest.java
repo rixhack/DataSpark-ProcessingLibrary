@@ -1,10 +1,16 @@
 package dataspark.library;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 /*
  * Class which emulates the behaviour of the TwitterRequest class from the backend 
@@ -23,6 +29,7 @@ public class TwitterRequest extends ReceiverAdapter {
 	int minValue = 0; // The minimum value that can be used in the animation.
 	int timeWindow; // The number of minutes of tweets we want to retrieve. (MAX = 10080 = 7 days).
 	
+	SketchTemplate serverConn;
 	// Initialise a request with given query and time window.
 	public TwitterRequest(PApplet parent, String query, int min) {
 		this.parent = parent;
@@ -31,6 +38,15 @@ public class TwitterRequest extends ReceiverAdapter {
 		}
 		this.query = query;
 		this.timeWindow = min;
+		try {
+			if (parent.args != null){
+				this.serverConn = new SketchTemplate(Integer.parseInt(parent.args[0]));
+			} else {
+				this.serverConn = new SketchTemplate(22637);
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		try {
 			start();
 		} catch (Exception e) {
@@ -87,5 +103,38 @@ public class TwitterRequest extends ReceiverAdapter {
 	public void dispose() {
 		channel.disconnect();
 	}
+	
+	public void send(PImage img) {
+		try {
+			serverConn.sendFrame(img);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
+	private class SketchTemplate {
+		Socket echoSocket;
+		OutputStream out;
+		
+		public SketchTemplate(int port) throws IOException {
+			this.echoSocket = new Socket("localhost", port);
+			this.out = echoSocket.getOutputStream();
+		}
+		
+		void sendFrame(PImage img) throws IOException {
+			byte[] buffer = new byte[img.width * img.height *3];
+			
+			for (int x = 0; x < img.width; x++){
+				for (int y = 0; y < img.height; y++){
+					int col = img.get(x, y);
+					
+					buffer[(y * img.width + x) * 3] = (byte) ((col >> 16) & 0xFF);
+					buffer[(y * img.width + x) * 3 + 1] = (byte) ((col >> 8) & 0xFF);
+	                buffer[(y * img.width + x) * 3 + 2] = (byte) (col & 0xFF);
+				}
+			}
+			out.write(buffer);
+			out.flush();
+		}
+	}
 }
