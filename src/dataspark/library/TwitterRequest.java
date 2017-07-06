@@ -12,10 +12,10 @@ import org.jgroups.ReceiverAdapter;
 import processing.core.PApplet;
 import processing.core.PImage;
 
+
 /*
- * Class which emulates the behaviour of the TwitterRequest class from the backend 
- * processing library allowing the designer of a processing sketch to test different 
- * data values with a slider tool.
+ * Class which sends a data request to the data handler and receives values from it.
+ * It returns this values on demand from the processing sketch.
  * 
  */
 
@@ -44,7 +44,9 @@ public class TwitterRequest extends ReceiverAdapter {
 		}
 	}
 	
-	// Start the communication and send the query to the data handler. Then wait for a message.
+	/*
+	 * Creates the JGroups channel to communicate with the data handler.
+	 */
 	private void start() throws Exception {
 		channel = new JChannel();
 		channel.setReceiver(this);
@@ -55,7 +57,12 @@ public class TwitterRequest extends ReceiverAdapter {
 		channel.send(req);
 	}
 	
-	// When a value is received from the data handler, store it in the pValue variable.
+	/*
+	 * This function is triggered when a message is sent through the channel from the
+	 * data handler. It updates the variables accordingly with the value received.
+	 * 
+	 * @param msg: The message object sent by the data handler.
+	 */
 	public void receive(Message msg){
 		try {
 			this.pValue = (int) msg.getObject();
@@ -63,12 +70,17 @@ public class TwitterRequest extends ReceiverAdapter {
 			
 		}
 	}
-	
+	/*
+	 * Closes the communication channel.
+	 */
 	private void closeChannel() {
 		channel.close();
 	}
 	
-	// When the processing sketch request the data value, return it if it is in the defined range.
+	/*
+	 * Function called by the processing sketch. Returns the last value received
+	 * from the data handler.
+	 */
 	public int getValue(){
 		if (pValue < maxValue) {
 			if (pValue > minValue) {
@@ -81,15 +93,26 @@ public class TwitterRequest extends ReceiverAdapter {
 		}
 	}
 	
-	// Methods to set the maximum and minimum values.
+	/*
+	 * Sets the upper limit for the value returned to the processing script.
+	 * 
+	 * @param v: The value to be set as maximum.
+	 */
 	public void setMaxValue(int v){
 		this.maxValue = v;
 	}
-	
+	/*
+	 * Sets the lower limit for the value returned to the processing script.
+	 * 
+	 * @param v: The value to be set as minimum.
+	 */
 	public void setMinValue(int v){
 		this.minValue = v;
 	}
 	
+	/*
+	 * Disconnects the class instance from the channel.
+	 */
 	public void dispose() {
 		channel.disconnect();
 	}

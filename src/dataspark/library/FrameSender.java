@@ -8,6 +8,9 @@ import java.net.UnknownHostException;
 import processing.core.PApplet;
 import processing.core.PImage;
 
+/*
+ * Class in charge of sending frames to the server web socket.
+ */
 public class FrameSender {
 	Socket echoSocket;
 	OutputStream out;
@@ -29,6 +32,11 @@ public class FrameSender {
 		
 	}
 	
+	/*
+	 * Converts the given frame to a byte array and sends it to the web socket.
+	 * 
+	 * @param img: The frame to be sent.
+	 */
 	public void send(PImage img) {
 		byte[] buffer = new byte[img.width * img.height *3];
 		
