@@ -13,6 +13,7 @@ public class FrameSender {
 	OutputStream out;
 	
 	public FrameSender(PApplet parent) {
+		parent.frameRate(25);
 		int port = 22637;
 		if (parent.args != null) {
 			port = Integer.parseInt(parent.args[0]);
